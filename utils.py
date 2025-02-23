@@ -183,7 +183,7 @@ def generate_text_granite_instruct(system_instruct, input_text, my_token):
 
 
 
-def generate_code_granite_instruct(input_text, system_instruct, my_token):
+def generate_code_granite_instruct(input_text: str, system_instruct:str, my_token)->str:
     """
     Generates code using the IBM Granite code language model by providing input text and system instructions.
     
@@ -260,6 +260,24 @@ def generate_code_granite_instruct(input_text, system_instruct, my_token):
     except Exception as err:
         # Catch any other unexpected exceptions
         raise Exception(f"An error occurred: {err}")
+
+
+#
+# Clean Cypher Query
+#
+def clean_cypher_query(cypher_query:str)->str:
+    '''
+    Workaround/ Mitigation to truncate the draft query and use send data to Neo4j 
+    '''
+    query_lines = cypher_query.strip().split('\n')
+    
+    query_lines = query_lines[:-1]
+    
+    cleaned_query = '\n'.join(query_lines)
+    
+    return cleaned_query
+
+
 
 
 #

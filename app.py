@@ -76,4 +76,44 @@ print(f'***granite-34b-code-instruct: CYPHER QUERY FINAL :: {cypher_query_final}
 # # Connect to Neo4j and input Knoweldge Graph Nodes and Edges
 # #
 
-# query_neo(cypher_query_final)  #@TODO add try, to catch errors and re-run throught LLM for new query
+#query_neo(cypher_query_final)  #@TODO add try, to catch errors and re-run throught LLM for new query
+
+retries = 4  
+attempt = 0
+success = False
+
+while attempt < retries:
+    try:
+        # Generate the Cypher query
+        cypher_query_final = generate_code_granite_instruct(cypher_query_draft, 
+                                                    system_instruct_2,
+                                                    TOKEN) 
+        
+        # Run the query
+        query_neo(cypher_query_final)  
+        print("Query executed successfully.")
+        success = True  
+        break
+
+    except Exception as e:
+        print(f"Error: {e}. Retrying... (Attempt {attempt + 1}/{retries})")
+        
+        cypher_query_final = generate_code_granite_instruct(cypher_query_draft, 
+                                                    system_instruct_2,
+                                                    TOKEN) 
+
+        attempt += 1
+
+        if attempt == retries:
+            print("Max retries reached. Query failed.")
+            raise Exception("Query failed after multiple attempts.")
+
+
+if not success:
+    print("***==Attempting truncated cypher ...==**")
+
+    try:
+        truncated_cypher = clean_cypher_query(cypher_query_draft)
+        query_neo(truncated_cypher)
+    except Exception as e:
+        print(f'Error:{e}')
